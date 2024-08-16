@@ -1,5 +1,3 @@
-# slot/serializers.py
-
 from rest_framework import serializers
 from .models import GameSession, Spin
 from authentication.models import User

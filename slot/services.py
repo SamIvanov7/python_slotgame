@@ -1,8 +1,15 @@
-# slot/services.py
-
 import random
-from .models import GameSession, Spin
 from decimal import Decimal
+from .models import GameSession, Spin, Payline, Symbol
+from authentication.models import Transaction
+
+DEFAULT_PAYLINES = [
+    [(0, 0), (0, 1), (0, 2)],  # Line 1: Top row
+    [(1, 0), (1, 1), (1, 2)],  # Line 2: Middle row
+    [(2, 0), (2, 1), (2, 2)],  # Line 3: Bottom row
+    [(0, 0), (1, 1), (2, 2)],  # Line 4: Diagonal from top left to bottom right
+    [(0, 2), (1, 1), (2, 0)],  # Line 5: Diagonal from top right to bottom left
+]
 
 symbol_count = {
     "Apple": 2,
@@ -19,7 +26,7 @@ symbol_value = {
 }
 
 def get_slot_machine_spin(rows, cols):
-    """Generate a random slot machine spin."""
+    """Generate a random slot machine spin using default symbol counts."""
     all_symbols = []
     for symbol, count in symbol_count.items():
         all_symbols.extend([symbol] * count)
@@ -31,24 +38,45 @@ def get_slot_machine_spin(rows, cols):
     
     return columns
 
-def calculate_winnings(columns, lines, bet):
-    """Calculate winnings based on slot machine spin."""
+
+def get_paylines(slot_machine, lines):
+    """Fetch custom paylines from the database or use default if none exist."""
+    custom_paylines = Payline.objects.filter(slot_machine=slot_machine).order_by('line_number')[:lines]
+    
+    if custom_paylines.exists():
+        paylines = [
+            [(coord['row'], coord['col']) for coord in payline.coordinates]
+            for payline in custom_paylines
+        ]
+    else:
+        paylines = DEFAULT_PAYLINES[:lines]
+
+    return paylines
+
+
+def calculate_winnings(columns, slot_machine, lines, bet):
+    """Calculate the total winnings based on spin results and paylines."""
+    paylines = get_paylines(slot_machine, lines)
     winnings = Decimal(0)
     winning_lines = []
 
-    for line in range(lines):
-        symbol = columns[0][line]
-        for column in columns:
-            if column[line] != symbol:
+    for line_index, line in enumerate(paylines):
+        symbol = columns[line[0][1]][line[0][0]]
+        for position in line:
+            row, col = position
+            
+            if col >= len(columns) or row >= len(columns[col]) or columns[col][row] != symbol:
                 break
         else:
-            winnings += Decimal(symbol_value[symbol]) * Decimal(bet)
-            winning_lines.append(line + 1)
+            
+            winnings += Decimal(symbol_value.get(symbol, 0)) * Decimal(bet)
+            winning_lines.append(line_index + 1)
 
     return winnings, winning_lines
 
+
 def create_game_session(user, slot_machine, bet_amount, lines):
-    """Create a new game session."""
+    """Create and return a new game session."""
     session = GameSession.objects.create(
         user=user,
         slot_machine=slot_machine,
@@ -57,11 +85,50 @@ def create_game_session(user, slot_machine, bet_amount, lines):
     )
     return session
 
+
 def record_spin(session, result, winnings):
-    """Record a spin in the database."""
+    """Record a completed spin and its results in the database."""
     spin = Spin.objects.create(
         game_session=session,
         spin_result=result,
         winnings=winnings
     )
     return spin
+
+
+def create_bet_transaction(user, amount):
+    """Record a bet transaction and update the user's balance."""
+    new_balance = user.balance - amount
+    Transaction.objects.create(
+        user=user,
+        transaction_type='BET',
+        amount=amount,
+        balance_after=new_balance
+    )
+    user.balance = new_balance
+    user.save()
+
+
+def create_win_transaction(user, amount):
+    """Record a win transaction and update the user's balance."""
+    new_balance = user.balance + amount
+    Transaction.objects.create(
+        user=user,
+        transaction_type='WIN',
+        amount=amount,
+        balance_after=new_balance
+    )
+    user.balance = new_balance
+    user.save()
+
+
+def generate_spin(slot_machine):
+    """Generate a random spin result for a slot machine using symbols from the database."""
+    symbols = Symbol.objects.filter(slot_machine=slot_machine)
+    symbol_pool = []
+    
+    for symbol in symbols:
+        symbol_pool.extend([symbol.symbol_name] * symbol.symbol_count)
+    
+    spin_result = random.choices(symbol_pool, k=slot_machine.rows * slot_machine.cols)
+    return spin_result

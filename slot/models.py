@@ -15,6 +15,14 @@ class SlotMachine(models.Model):
     def __str__(self):
         return self.name
 
+class Symbol(models.Model):
+    slot_machine = models.ForeignKey(SlotMachine, on_delete=models.CASCADE)
+    symbol_name = models.CharField(max_length=100)
+    symbol_count = models.IntegerField()
+    symbol_value = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.symbol_name} ({self.symbol_value})"
 
 class GameSession(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -31,9 +39,18 @@ class GameSession(models.Model):
 
 class Spin(models.Model):
     game_session = models.ForeignKey(GameSession, on_delete=models.CASCADE)
-    spin_result = models.JSONField()  # Stores result of the spin as a JSON object
+    spin_result = models.JSONField()
     winnings = models.DecimalField(max_digits=10, decimal_places=2)
     spin_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Spin {self.id} in Session {self.game_session.id}"
+    
+
+class Payline(models.Model):
+    slot_machine = models.ForeignKey(SlotMachine, on_delete=models.CASCADE, related_name="paylines")
+    line_number = models.IntegerField()
+    coordinates = models.JSONField()
+
+    def __str__(self):
+        return f"Payline {self.line_number} for {self.slot_machine.name}"
