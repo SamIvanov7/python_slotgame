@@ -1,0 +1,45 @@
+-i https://pypi.org/simple
+asgiref==3.8.1; python_version >= '3.8'
+black==24.8.0
+certifi==2024.7.4; python_version >= '3.6'
+cffi==1.17.0; platform_python_implementation != 'PyPy'
+charset-normalizer==3.3.2; python_full_version >= '3.7.0'
+click==8.1.7; python_version >= '3.7'
+cryptography==43.0.0; python_version >= '3.7'
+defusedxml==0.8.0rc2; python_version >= '3.6'
+django==5.1
+django-stubs==5.0.4
+django-stubs-ext==5.0.4; python_version >= '3.8'
+django-templated-mail==1.1.1
+djangorestframework==3.15.2
+djangorestframework-simplejwt==5.3.1
+djoser==2.2.3
+drf-yasg==1.21.7
+flake8==7.1.1
+idna==3.7; python_version >= '3.5'
+inflection==0.5.1; python_version >= '3.5'
+isort==5.13.2
+mccabe==0.7.0; python_version >= '3.6'
+mypy-extensions==1.0.0; python_version >= '3.5'
+oauthlib==3.2.2; python_version >= '3.6'
+packaging==24.1; python_version >= '3.8'
+pathspec==0.12.1; python_version >= '3.8'
+platformdirs==4.2.2; python_version >= '3.8'
+psycopg2-binary==2.9.9
+pycodestyle==2.12.1; python_version >= '3.8'
+pycparser==2.22; python_version >= '3.8'
+pyflakes==3.2.0; python_version >= '3.8'
+pyjwt==2.9.0; python_version >= '3.8'
+python-dotenv==1.0.1
+python3-openid==3.2.0
+pytz==2024.1
+pyyaml==6.0.2; python_version >= '3.8'
+requests==2.32.3
+requests-oauthlib==2.0.0; python_version >= '3.4'
+social-auth-app-django==5.4.2; python_version >= '3.8'
+social-auth-core==4.5.4; python_version >= '3.8'
+sqlparse==0.5.1; python_version >= '3.8'
+types-pyyaml==6.0.12.20240808; python_version >= '3.8'
+typing-extensions==4.12.2; python_version >= '3.8'
+uritemplate==4.1.1; python_version >= '3.6'
+urllib3==2.2.2; python_version >= '3.8'

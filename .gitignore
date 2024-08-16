@@ -1,0 +1,15 @@
+# Editors
+.vscode/
+
+# Python stuff
+
+__pycache__/
+
+# other
+history.json
+
+#sqLite
+db.sqLite3
+*.sql
+
+.env

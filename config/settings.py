@@ -2,12 +2,14 @@ import os
 from datetime import timedelta
 from distutils.util import strtobool
 from pathlib import Path
+from dotenv import load_dotenv
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-q#2a*(c)64gzbt#a7#j$s5dxi*b1h0hx5-e8gmubru#a4x@!g7'
-
+DEBUG = strtobool(os.getenv("DJANGO_DEBUG", default="false"))
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
@@ -79,6 +81,16 @@ DATABASES = {
     }
 }
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": os.getenv("POSTGRES_DB", default="python_slotgame_db"),
+#         "USER": os.getenv("POSTGRES_USER", default="support"),
+#         "PASSWORD": os.getenv("POSTGRES_PASSWORD", default="support1234"),
+#         "HOST": os.getenv("POSTGRES_HOST", default="postgres"),
+#         "PORT": int(os.getenv("POSTGRES_PORT", default="5432")),
+#     }
+# }
 
 # Password validation
 

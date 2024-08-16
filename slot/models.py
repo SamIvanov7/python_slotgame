@@ -19,10 +19,10 @@ class Symbol(models.Model):
     slot_machine = models.ForeignKey(SlotMachine, on_delete=models.CASCADE)
     symbol_name = models.CharField(max_length=100)
     symbol_count = models.IntegerField()
-    symbol_value = models.DecimalField(max_digits=10, decimal_places=2)
+    payout = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):
-        return f"{self.symbol_name} ({self.symbol_value})"
+        return f"{self.symbol_name} (Payout: {self.payout}, Frequency: {self.symbol_count})"
 
 class GameSession(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

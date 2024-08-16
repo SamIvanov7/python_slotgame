@@ -2,11 +2,11 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import User
-from .serializers import RegisterSerializer, UserSerializer
+from .serializers import CustomUserCreateSerializer, CustomUserSerializer
 
 class RegisterView(APIView):
     def post(self, request):
-        serializer = RegisterSerializer(data=request.data)
+        serializer = CustomUserCreateSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
             return Response({"message": "User created successfully."}, status=status.HTTP_201_CREATED)
@@ -15,5 +15,5 @@ class RegisterView(APIView):
 class UserDetailView(APIView):
     def get(self, request, *args, **kwargs):
         user = request.user
-        serializer = UserSerializer(user)
+        serializer = CustomUserSerializer(user)
         return Response(serializer.data)

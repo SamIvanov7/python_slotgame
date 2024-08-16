@@ -9,8 +9,15 @@ djangorestframework = "*"
 djoser = "*"
 djangorestframework-simplejwt = "*"
 drf-yasg = "*"
+black = "*"
+flake8 = "*"
+isort = "*"
+psycopg2-binary = "*"
+django-stubs = "*"
+requests = "*"
+python-dotenv = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.7"
+python_version = "3.11"
