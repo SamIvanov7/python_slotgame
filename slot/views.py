@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from slot.models import SlotMachine
-from slot.serializers import BetSerializer
+from slot.serializers import BetSerializer, SpinResultSerializer
 from slot.services import (
     create_game_session, 
     generate_spin, 
@@ -28,6 +28,7 @@ class SlotMachineSpinView(APIView):
             bet_amount = serializer.validated_data['bet_amount']
             lines = serializer.validated_data['lines']
             
+            # Validate slot machine and bet
             slot_machine = get_object_or_404(SlotMachine, id=slot_machine_id)
             
             if bet_amount * lines > user.balance:
@@ -39,23 +40,30 @@ class SlotMachineSpinView(APIView):
             if lines > len(DEFAULT_PAYLINES) or lines < 1:
                 return Response({"error": f"Invalid number of lines, max is {len(DEFAULT_PAYLINES)}"}, status=status.HTTP_400_BAD_REQUEST)
             
+            # Deduct balance and create a game session
             total_bet = bet_amount * lines
             create_bet_transaction(user, total_bet)
             
             session = create_game_session(user, slot_machine, bet_amount, lines)
             
+            # Perform spin
             spin_result = generate_spin(slot_machine)
             
+            # Calculate winnings
             winnings, winning_lines = calculate_winnings(spin_result, slot_machine, lines, bet_amount)
             
-            record_spin(session, spin_result, winnings)
+            # Record the spin and update balance
+            spin_instance = record_spin(session, spin_result, winnings)
             
+            # If the user won, create a win transaction
             if winnings > 0:
                 create_win_transaction(user, winnings)
-
+            
+            # Serialize the spin result using SpinResultSerializer
+            spin_serializer = SpinResultSerializer(spin_instance)
+            
             return Response({
-                "spin_result": spin_result,
-                "winnings": winnings,
+                "spin_result": spin_serializer.data,
                 "winning_lines": winning_lines,
                 "balance": user.balance
             }, status=status.HTTP_200_OK)
